@@ -1,8 +1,11 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 
 public class WikiGame {
@@ -10,6 +13,18 @@ public class WikiGame {
     private int maxDepth;
     private ArrayList<String> path = new ArrayList<>();
     public String currentLink;
+    public String startLink;
+    public String endLink;
+    public JFrame mainFrame;
+    public JPanel panel;
+    public JPanel bigPanel;
+    public JTextArea urlSearch;
+    public JTextArea termSearch;
+    public JLabel urlText;
+    public JLabel termText;
+    public JTextArea results;
+    public JButton searchButton;
+    public JScrollPane scrollBar;
 
     public static void main(String[] args) {
         WikiGame w = new WikiGame();
@@ -17,17 +32,15 @@ public class WikiGame {
 
     public WikiGame() {
 
-        String startLink = "https://en.wikipedia.org/wiki/Dwayne_Johnson";  // beginning link, where the program will start
-        String endLink = "https://en.wikipedia.org/wiki/Walt_Disney_Animation_Studios";    // ending link, where the program is trying to get to
+        //prepareGUI();
+
+        startLink = "https://en.wikipedia.org/wiki/Dwayne_Johnson";  // beginning link, where the program will start
+        endLink = "https://en.wikipedia.org/wiki/Minnie_Mouse";    // ending link, where the program is trying to get to
         maxDepth = 1;           // start this at 1 or 2, and if you get it going fast, increase
 
-        if (findLink(startLink, endLink, 0)) {
-            System.out.println("found it********************************************************************");
-            path.add(startLink);
-            System.out.println(path);
-        } else {
-            System.out.println("did not found it********************************************************************");
-        }
+        search();
+
+        System.out.println();
 
     }
 
@@ -35,35 +48,31 @@ public class WikiGame {
     public boolean findLink(String startLink, String endLink, int depth) {
         System.out.println("depth is: " + depth + ", link is: " + startLink);
 
-        for (String i: subLinks(startLink)) {
-            //System.out.println(i);
+        if (subLinks(startLink).contains(endLink)) {
+            System.out.println("found it********************************************************************");
+            path.add(startLink);
+            return true;
+        }
 
-            // BASE CASE
-            if(i.equals(endLink)){
+        for (String i : subLinks(startLink)) {
+
+            if (depth == maxDepth) {
+                //System.out.println("brrrr");
+                return false;
+            } else if (findLink(i, endLink, depth + 1)) {
                 System.out.println("found it********************************************************************");
                 path.add(startLink);
                 return true;
-            }
-            else if (depth == maxDepth) {
-                //System.out.println("brrrr");
-                return false;
+            } else {
+                //System.out.println("did not found it ********************************************************************");
             }
 
-            // GENERAL RECURSIVE CASE
-            else {
-                if (findLink(i, endLink, depth+1)) {
-                    System.out.println("found it********************************************************************");
-                    path.add(startLink);
-                } else {
-                    //System.out.println("did not found it ********************************************************************");
-                }
-            }
         }
 
         return false;
     }
 
-    public ArrayList<String> subLinks (String link){
+    public ArrayList<String> subLinks(String link) {
         ArrayList<String> links = new ArrayList<>();
         boolean keepGoing;
         String subCurrentLink;
@@ -90,10 +99,78 @@ public class WikiGame {
                 }
             }
             reader.close();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             System.out.println(ex);
         }
         return links;
     }
 
+    public void prepareGUI() {
+        mainFrame = new JFrame("WikiGame");
+        mainFrame.setLayout(new GridLayout(2, 1));
+
+        bigPanel = new JPanel();
+        bigPanel.setLayout(new BorderLayout());
+        panel = new JPanel();
+        panel.setLayout(new GridLayout(2, 2));
+
+        urlText = new JLabel("Start:", JLabel.CENTER);
+        termText = new JLabel("Destination:", JLabel.CENTER);
+
+        urlSearch = new JTextArea();
+        urlSearch.setBounds(50, 5, 700, 650);
+        termSearch = new JTextArea();
+        termSearch.setBounds(50, 5, 700, 650);
+
+        searchButton = new JButton("Go!");
+        searchButton.setActionCommand("Search");
+        searchButton.addActionListener(new ButtonClickListener());
+
+        results = new JTextArea();
+        results.setLineWrap(true);
+        scrollBar = new JScrollPane(results);
+        scrollBar.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+        panel.add(urlText);
+        panel.add(urlSearch);
+        panel.add(termText);
+        panel.add(termSearch);
+        bigPanel.add(panel, BorderLayout.CENTER);
+        bigPanel.add(searchButton, BorderLayout.SOUTH);
+        mainFrame.add(bigPanel);
+        mainFrame.add(scrollBar);
+        mainFrame.setSize(800, 700);
+        mainFrame.setVisible(true);
+    }
+
+    public void search() {
+        String finalPath = "";
+        path.add(endLink);
+        //results.setText("Loading...");
+        if (findLink(startLink, endLink, 0)) {
+            System.out.println("found it********************************************************************");
+            System.out.println(path);
+            for(String i: path) {
+                finalPath = finalPath.concat(i + "-->");
+            }
+            finalPath = finalPath.substring(0, finalPath.length()-3);
+            //results.setText(finalPath);
+        } else {
+            System.out.println("did not found it********************************************************************");
+        }
+    }
+
+    private class ButtonClickListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            String command = e.getActionCommand();
+            if (command.equals("Search")) {
+                startLink = urlSearch.getText();
+                endLink = termSearch.getText();
+                if (startLink.equals("")) {
+                } else {
+                }
+                search();
+            }
+        }
+    }
 }
