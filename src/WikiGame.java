@@ -1,7 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -15,39 +14,48 @@ public class WikiGame {
     public String currentLink;
     public String startingLink;
     public String endLink;
+    public String finalPath;
     public JFrame mainFrame;
     public JPanel panel;
     public JPanel bigPanel;
     public JTextArea urlSearch;
     public JTextArea termSearch;
+    public JTextArea depthSearch;
     public JLabel urlText;
     public JLabel termText;
+    public JLabel depth;
     public JTextArea results;
     public JButton searchButton;
     public JScrollPane scrollBar;
+    public ArrayList<String> visitedLinks = new ArrayList<>();
 
     public static void main(String[] args) {
-        WikiGame w = new WikiGame();
+        WikiGame wikigame= new WikiGame();
     }
 
     public WikiGame() {
 
         //prepareGUI();
+        addBadLinks();
 
         startingLink = "https://en.wikipedia.org/wiki/Dwayne_Johnson";  // beginning link, where the program will start
         endLink = "https://en.wikipedia.org/wiki/Mickey_Mouse";    // ending link, where the program is trying to get to
         maxDepth = 2;           // start this at 1 or 2, and if you get it going fast, increase
 
-        search();
+
+        // https://en.wikipedia.org/wiki/Dwayne_Johnson
+        // https://en.wikipedia.org/wiki/Mickey_Mouse
 
         System.out.println();
+
+        search();
 
     }
 
     // recursion method
     public boolean findLink(String startLink, String endLink, int depth) {
 
-        if(isItABadLink(startLink)|| (startLink.equals(startingLink) && depth != 0)) {
+        if(visitedLinks.contains(startLink) && depth != 0) {
             return false;
         }
         System.out.println("depth is: " + depth + ", link is: " + startLink);
@@ -57,6 +65,7 @@ public class WikiGame {
             path.add(startLink);
             return true;
         }
+        visitedLinks.add(startLink);
 
         for (String i : subLinks(startLink)) {
             /*if (i.equals(startLink) || i.equals(startingLink)) {
@@ -86,7 +95,6 @@ public class WikiGame {
         boolean keepGoing;
         String subCurrentLink;
         String nextPart;
-        int startPoint;
         try {
             URL url = new URL(link);
             BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
@@ -110,6 +118,8 @@ public class WikiGame {
             reader.close();
         } catch (Exception ex) {
             System.out.println(ex);
+            results.setText("One or more links are invalid");
+
         }
         return links;
     }
@@ -121,15 +131,18 @@ public class WikiGame {
         bigPanel = new JPanel();
         bigPanel.setLayout(new BorderLayout());
         panel = new JPanel();
-        panel.setLayout(new GridLayout(2, 2));
+        panel.setLayout(new GridLayout(3, 2));
 
-        urlText = new JLabel("Start:", JLabel.CENTER);
-        termText = new JLabel("Destination:", JLabel.CENTER);
+        urlText = new JLabel("Starting Link:", JLabel.CENTER);
+        termText = new JLabel("Destination Link:", JLabel.CENTER);
+        depth = new JLabel("Maximum Search Depth:", JLabel.CENTER);
 
         urlSearch = new JTextArea();
         urlSearch.setBounds(50, 5, 700, 650);
         termSearch = new JTextArea();
         termSearch.setBounds(50, 5, 700, 650);
+        depthSearch = new JTextArea();
+        depthSearch.setBounds(50,5,700,650);
 
         searchButton = new JButton("Go!");
         searchButton.setActionCommand("Search");
@@ -144,6 +157,8 @@ public class WikiGame {
         panel.add(urlSearch);
         panel.add(termText);
         panel.add(termSearch);
+        panel.add(depth);
+        panel.add(depthSearch);
         bigPanel.add(panel, BorderLayout.CENTER);
         bigPanel.add(searchButton, BorderLayout.SOUTH);
         mainFrame.add(bigPanel);
@@ -153,77 +168,52 @@ public class WikiGame {
     }
 
     public void search() {
-        String finalPath = "";
         path.add(endLink);
         //results.setText("Loading...");
         if (findLink(startingLink, endLink, 0)) {
             System.out.println("found it********************************************************************");
             System.out.println(path);
             for(String i: path) {
-                finalPath = finalPath.concat(i + "-->");
+                //finalPath = finalPath.concat(i + "-->");
             }
-            finalPath = finalPath.substring(0, finalPath.length()-3);
+            //finalPath = finalPath.substring(0, finalPath.length()-3);
             //results.setText(finalPath);
         } else {
             System.out.println("did not found it********************************************************************");
         }
     }
 
-    public boolean isItABadLink(String h){
-        if(h.equals("https://en.wikipedia.org/wiki/Main_Page")){
-            return true;
-        }
-        if(h.equals("https://en.wikipedia.org/wiki/Wikipedia:Contents")){
-            return true;
-        }
-        if(h.equals("https://en.wikipedia.org/wiki/Portal:Current_events")){
-            return true;
-        }
-        if(h.equals("https://en.wikipedia.org/wiki/Special:Random")){
-            return true;
-        }
-        if(h.equals("https://en.wikipedia.org/wiki/Wikipedia:About")){
-            return true;
-        }
-        if(h.equals("https://en.wikipedia.org/wiki/Help:Contents")){
-            return true;
-        }
-        if(h.equals("https://en.wikipedia.org/wiki/Help:Introduction")){
-            return true;
-        }
-        if(h.equals("https://en.wikipedia.org/wiki/Wikipedia:Community_portal")){
-            return true;
-        }
-        if(h.equals("https://en.wikipedia.org/wiki/Special:RecentChanges")){
-            return true;
-        }
-        if(h.equals("https://en.wikipedia.org/wiki/Wikipedia:File_upload_wizard")){
-            return true;
-        }
-        if(h.equals("https://en.wikipedia.org/wiki/Special:Search")){
-            return true;
-        }
-        if(h.equals("https://en.wikipedia.org/wiki/Special:MyContributions")){
-            return true;
-        }
-        if(h.equals("https://en.wikipedia.org/wiki/Special:MyTalk")){
-            return true;
-        }
-
-
-        return false;
+    public void addBadLinks(){
+        visitedLinks.add("https://en.wikipedia.org/wiki/Main_Page");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Wikipedia:Contents");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Portal:Current_events");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Special:Random");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Wikipedia:About");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Help:Contents");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Help:Introduction");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Wikipedia:Community_portal");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Special:RecentChanges");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Wikipedia:File_upload_wizard");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Special:Search");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Special:MyContributions");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Special:MyTalk");
     }
 
     private class ButtonClickListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            String command = e.getActionCommand();
-            if (command.equals("Search")) {
-                startingLink = urlSearch.getText();
-                endLink = termSearch.getText();
-                if (startingLink.equals("")) {
-                } else {
+            results.setText(null);
+            startingLink = urlSearch.getText();
+            endLink = termSearch.getText();
+            try {
+                maxDepth = Integer.parseInt(depthSearch.getText());
+                results.setText("Start: "+startingLink+"\nEnd: "+endLink+"\nMax Depth: "+maxDepth+"\nLoading...");
+                String command = e.getActionCommand();
+                if (command.equals("Search")) {
+                    search();
+                    results.setText("Start: "+startingLink+"\nEnd: "+endLink+"\nMax Depth: "+maxDepth+"\n"+"Path: "+finalPath);
                 }
-                search();
+            } catch (Exception ex) {
+                results.setText("please enter a valid depth");
             }
         }
     }
