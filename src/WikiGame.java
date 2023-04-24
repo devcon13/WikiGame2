@@ -5,9 +5,12 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class WikiGame {
+
+    //prune: wiki/User:, wiki/User_talk, wiki/Special:, wiki/Help:, wiki/Wikiedia:, wiki/Template, wiki/File:, wiki/Category:
 
     private int maxDepth;
     private ArrayList<String> path = new ArrayList<>();
@@ -27,7 +30,7 @@ public class WikiGame {
     public JTextArea results;
     public JButton searchButton;
     public JScrollPane scrollBar;
-    public ArrayList<String> visitedLinks = new ArrayList<>();
+    public HashMap<String, String> visitedLinks = new HashMap();
 
     public static void main(String[] args) {
         WikiGame wikigame= new WikiGame();
@@ -55,7 +58,7 @@ public class WikiGame {
     // recursion method
     public boolean findLink(String startLink, String endLink, int depth) {
 
-        if(visitedLinks.contains(startLink) && depth != 0) {
+        if(visitedLinks.containsValue(startLink) && depth != 0) {
             return false;
         }
         System.out.println("depth is: " + depth + ", link is: " + startLink);
@@ -65,7 +68,7 @@ public class WikiGame {
             path.add(startLink);
             return true;
         }
-        visitedLinks.add(startLink);
+        visitedLinks.put(startLink,startLink);
 
         for (String i : subLinks(startLink)) {
             /*if (i.equals(startLink) || i.equals(startingLink)) {
@@ -102,18 +105,18 @@ public class WikiGame {
             while ((line = reader.readLine()) != null) {
                 nextPart = line;
                 keepGoing = true;
-                if (line.contains("<a href=\"/wiki")) {
                     while (keepGoing == true) {
                         if (nextPart.contains("<a href=\"/wiki")) {
                             subCurrentLink = nextPart.substring((nextPart.indexOf("<a href=\"/wiki") + 9), (nextPart.indexOf("\"", nextPart.indexOf("<a href=\"/wiki/") + 9)));
                             currentLink = "https://en.wikipedia.org".concat(subCurrentLink);
-                            links.add(currentLink);
+                            if(!currentLink.contains("wiki/User:") && !currentLink.contains("wiki/User_talk") && !currentLink.contains("wiki/Special:") && !currentLink.contains("wiki/Help:") && !currentLink.contains("wiki/Wikipedia:") && !currentLink.contains("wiki/Template") && !currentLink.contains("wiki/File:") && !currentLink.contains("wiki/Category:")) {
+                                links.add(currentLink);
+                            }
                             nextPart = nextPart.substring(nextPart.indexOf(subCurrentLink) + 9);
                         } else {
                             keepGoing = false;
                         }
                     }
-                }
             }
             reader.close();
         } catch (Exception ex) {
@@ -169,14 +172,18 @@ public class WikiGame {
 
     public void search() {
         path.add(endLink);
+        finalPath = " ";
         //results.setText("Loading...");
         if (findLink(startingLink, endLink, 0)) {
             System.out.println("found it********************************************************************");
             System.out.println(path);
             for(String i: path) {
-                //finalPath = finalPath.concat(i + "-->");
+                i = i.replace("https://en.wikipedia.org/wiki/","");
+                i = i.replace("_", " ");
+                finalPath = finalPath.concat(" " + i + " -->");
             }
-            //finalPath = finalPath.substring(0, finalPath.length()-3);
+            finalPath = finalPath.substring(0, finalPath.length()-3);
+            System.out.println(finalPath);
             //results.setText(finalPath);
         } else {
             System.out.println("did not found it********************************************************************");
@@ -184,19 +191,20 @@ public class WikiGame {
     }
 
     public void addBadLinks(){
-        visitedLinks.add("https://en.wikipedia.org/wiki/Main_Page");
-        visitedLinks.add("https://en.wikipedia.org/wiki/Wikipedia:Contents");
-        visitedLinks.add("https://en.wikipedia.org/wiki/Portal:Current_events");
-        visitedLinks.add("https://en.wikipedia.org/wiki/Special:Random");
-        visitedLinks.add("https://en.wikipedia.org/wiki/Wikipedia:About");
-        visitedLinks.add("https://en.wikipedia.org/wiki/Help:Contents");
-        visitedLinks.add("https://en.wikipedia.org/wiki/Help:Introduction");
-        visitedLinks.add("https://en.wikipedia.org/wiki/Wikipedia:Community_portal");
-        visitedLinks.add("https://en.wikipedia.org/wiki/Special:RecentChanges");
-        visitedLinks.add("https://en.wikipedia.org/wiki/Wikipedia:File_upload_wizard");
-        visitedLinks.add("https://en.wikipedia.org/wiki/Special:Search");
-        visitedLinks.add("https://en.wikipedia.org/wiki/Special:MyContributions");
-        visitedLinks.add("https://en.wikipedia.org/wiki/Special:MyTalk");
+        visitedLinks.put("https://en.wikipedia.org/wiki/Main_Page","https://en.wikipedia.org/wiki/Main_Page");
+        visitedLinks.put("https://en.wikipedia.org/wiki/Wikipedia:Contents","https://en.wikipedia.org/wiki/Wikipedia:Contents");
+        visitedLinks.put("https://en.wikipedia.org/wiki/Portal:Current_events","https://en.wikipedia.org/wiki/Portal:Current_events");
+        visitedLinks.put("https://en.wikipedia.org/wiki/Special:Random","https://en.wikipedia.org/wiki/Special:Random");
+        visitedLinks.put("https://en.wikipedia.org/wiki/Wikipedia:About","https://en.wikipedia.org/wiki/Wikipedia:About");
+        visitedLinks.put("https://en.wikipedia.org/wiki/Help:Contents","https://en.wikipedia.org/wiki/Help:Contents");
+        visitedLinks.put("https://en.wikipedia.org/wiki/Help:Introduction","https://en.wikipedia.org/wiki/Help:Introduction");
+        visitedLinks.put("https://en.wikipedia.org/wiki/Wikipedia:Community_portal","https://en.wikipedia.org/wiki/Wikipedia:Community_portal");
+        visitedLinks.put("https://en.wikipedia.org/wiki/Special:RecentChanges","https://en.wikipedia.org/wiki/Special:RecentChanges");
+        visitedLinks.put("https://en.wikipedia.org/wiki/Wikipedia:File_upload_wizard","https://en.wikipedia.org/wiki/Wikipedia:File_upload_wizard");
+        visitedLinks.put("https://en.wikipedia.org/wiki/Special:Search","https://en.wikipedia.org/wiki/Special:Search");
+        visitedLinks.put("https://en.wikipedia.org/wiki/Special:MyContributions","https://en.wikipedia.org/wiki/Special:MyContributions");
+        visitedLinks.put("https://en.wikipedia.org/wiki/Special:MyTalk","https://en.wikipedia.org/wiki/Special:MyTalk");
+        System.out.println(visitedLinks);
     }
 
     private class ButtonClickListener implements ActionListener {
