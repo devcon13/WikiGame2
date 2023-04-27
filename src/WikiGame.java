@@ -6,11 +6,10 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 
 public class WikiGame {
-
-    //prune: wiki/User:, wiki/User_talk, wiki/Special:, wiki/Help:, wiki/Wikiedia:, wiki/Template, wiki/File:, wiki/Category:
 
     private int maxDepth;
     private ArrayList<String> path = new ArrayList<>();
@@ -30,7 +29,7 @@ public class WikiGame {
     public JTextArea results;
     public JButton searchButton;
     public JScrollPane scrollBar;
-    public HashMap<String, String> visitedLinks = new HashMap();
+    public HashSet<String> visitedLinks = new HashSet<>();
 
     public static void main(String[] args) {
         WikiGame wikigame= new WikiGame();
@@ -58,7 +57,7 @@ public class WikiGame {
     // recursion method
     public boolean findLink(String startLink, String endLink, int depth) {
 
-        if(visitedLinks.containsValue(startLink) && depth != 0) {
+        if(visitedLinks.contains(startLink) && depth != 0) {
             return false;
         }
         System.out.println("depth is: " + depth + ", link is: " + startLink);
@@ -68,7 +67,7 @@ public class WikiGame {
             path.add(startLink);
             return true;
         }
-        visitedLinks.put(startLink,startLink);
+        visitedLinks.add(startLink);
 
         for (String i : subLinks(startLink)) {
             /*if (i.equals(startLink) || i.equals(startingLink)) {
@@ -93,8 +92,8 @@ public class WikiGame {
         return false;
     }
 
-    public ArrayList<String> subLinks(String link) {
-        ArrayList<String> links = new ArrayList<>();
+    public HashSet<String> subLinks(String link) {
+        HashSet<String> links = new HashSet<>();
         boolean keepGoing;
         String subCurrentLink;
         String nextPart;
@@ -108,7 +107,7 @@ public class WikiGame {
                     while (keepGoing == true) {
                         if (nextPart.contains("<a href=\"/wiki")) {
                             subCurrentLink = nextPart.substring((nextPart.indexOf("<a href=\"/wiki") + 9), (nextPart.indexOf("\"", nextPart.indexOf("<a href=\"/wiki/") + 9)));
-                            currentLink = "https://en.wikipedia.org".concat(subCurrentLink);
+                            currentLink = "https://en.wikipedia.org"+(subCurrentLink);
                             if(!currentLink.contains("wiki/User:") && !currentLink.contains("wiki/User_talk") && !currentLink.contains("wiki/Special:") && !currentLink.contains("wiki/Help:") && !currentLink.contains("wiki/Wikipedia:") && !currentLink.contains("wiki/Template") && !currentLink.contains("wiki/File:") && !currentLink.contains("wiki/Category:")) {
                                 links.add(currentLink);
                             }
@@ -180,7 +179,7 @@ public class WikiGame {
             for(String i: path) {
                 i = i.replace("https://en.wikipedia.org/wiki/","");
                 i = i.replace("_", " ");
-                finalPath = finalPath.concat(" " + i + " -->");
+                finalPath = finalPath + " " + i + " -->";
             }
             finalPath = finalPath.substring(0, finalPath.length()-3);
             System.out.println(finalPath);
@@ -191,20 +190,20 @@ public class WikiGame {
     }
 
     public void addBadLinks(){
-        visitedLinks.put("https://en.wikipedia.org/wiki/Main_Page","https://en.wikipedia.org/wiki/Main_Page");
-        visitedLinks.put("https://en.wikipedia.org/wiki/Wikipedia:Contents","https://en.wikipedia.org/wiki/Wikipedia:Contents");
-        visitedLinks.put("https://en.wikipedia.org/wiki/Portal:Current_events","https://en.wikipedia.org/wiki/Portal:Current_events");
-        visitedLinks.put("https://en.wikipedia.org/wiki/Special:Random","https://en.wikipedia.org/wiki/Special:Random");
-        visitedLinks.put("https://en.wikipedia.org/wiki/Wikipedia:About","https://en.wikipedia.org/wiki/Wikipedia:About");
-        visitedLinks.put("https://en.wikipedia.org/wiki/Help:Contents","https://en.wikipedia.org/wiki/Help:Contents");
-        visitedLinks.put("https://en.wikipedia.org/wiki/Help:Introduction","https://en.wikipedia.org/wiki/Help:Introduction");
-        visitedLinks.put("https://en.wikipedia.org/wiki/Wikipedia:Community_portal","https://en.wikipedia.org/wiki/Wikipedia:Community_portal");
-        visitedLinks.put("https://en.wikipedia.org/wiki/Special:RecentChanges","https://en.wikipedia.org/wiki/Special:RecentChanges");
-        visitedLinks.put("https://en.wikipedia.org/wiki/Wikipedia:File_upload_wizard","https://en.wikipedia.org/wiki/Wikipedia:File_upload_wizard");
-        visitedLinks.put("https://en.wikipedia.org/wiki/Special:Search","https://en.wikipedia.org/wiki/Special:Search");
-        visitedLinks.put("https://en.wikipedia.org/wiki/Special:MyContributions","https://en.wikipedia.org/wiki/Special:MyContributions");
-        visitedLinks.put("https://en.wikipedia.org/wiki/Special:MyTalk","https://en.wikipedia.org/wiki/Special:MyTalk");
-        System.out.println(visitedLinks);
+        visitedLinks.add("https://en.wikipedia.org/wiki/Main_Page");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Wikipedia:Contents");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Portal:Current_events");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Special:Random");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Wikipedia:About");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Help:Contents");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Help:Introduction");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Wikipedia:Community_portal");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Special:RecentChanges");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Wikipedia:File_upload_wizard");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Special:Search");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Special:MyContributions");
+        visitedLinks.add("https://en.wikipedia.org/wiki/Special:MyTalk");
+        //System.out.println(visitedLinks);
     }
 
     private class ButtonClickListener implements ActionListener {
