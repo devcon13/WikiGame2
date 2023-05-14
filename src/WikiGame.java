@@ -29,6 +29,7 @@ public class WikiGame {
     public JButton searchButton;
     public JScrollPane scrollBar;
     public HashSet<String> visitedLinks = new HashSet<>();
+    public boolean found;
 
     public static void main(String[] args) {
         WikiGame wikigame= new WikiGame();
@@ -176,7 +177,9 @@ public class WikiGame {
             finalPath = finalPath.substring(0, finalPath.length()-3);
             System.out.println(finalPath);
             //results.setText(finalPath);
+            found = true;
         } else {
+            found = false;
             System.out.println("did not found it********************************************************************");
         }
     }
@@ -209,8 +212,12 @@ public class WikiGame {
                 String command = e.getActionCommand();
                 if (command.equals("Search")) {
                     search();
-                    results.setText("Start: "+startingLink+"\nEnd: "+endLink+"\nMax Depth: "+maxDepth+"\n"+"Path: "+finalPath);
-                }
+                    if(found == true) {
+                        results.setText("Start: " + startingLink + "\nEnd: " + endLink + "\nMax Depth: " + maxDepth + "\n" + "Path: " + finalPath);
+                    } else{
+                        results.setText("Start: " + startingLink + "\nEnd: " + endLink + "\nMax Depth: " + maxDepth + "\n" + "No path found.");
+                        }
+                    }
             } catch (Exception ex) {
                 results.setText("please enter a valid depth");
             }
