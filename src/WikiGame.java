@@ -5,7 +5,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 
 
@@ -37,20 +36,20 @@ public class WikiGame {
 
     public WikiGame() {
 
-        //prepareGUI();
+        prepareGUI();
         addBadLinks();
 
-        startingLink = "https://en.wikipedia.org/wiki/Dwayne_Johnson";  // beginning link, where the program will start
-        endLink = "https://en.wikipedia.org/wiki/Mickey_Mouse";    // ending link, where the program is trying to get to
-        maxDepth = 2;           // start this at 1 or 2, and if you get it going fast, increase
+        //startingLink = "https://en.wikipedia.org/wiki/Dwayne_Johnson";  // beginning link, where the program will start
+        //endLink = "https://en.wikipedia.org/wiki/Mickey_Mouse";    // ending link, where the program is trying to get to
+        //maxDepth = 1;           // start this at 1 or 2, and if you get it going fast, increase
 
 
-        // https://en.wikipedia.org/wiki/Dwayne_Johnson
-        // https://en.wikipedia.org/wiki/Mickey_Mouse
+        //https://en.wikipedia.org/wiki/Dwayne_Johnson
+        //https://en.wikipedia.org/wiki/Mickey_Mouse
 
         System.out.println();
 
-        search();
+        //search();
 
     }
 
@@ -70,21 +69,14 @@ public class WikiGame {
         visitedLinks.add(startLink);
 
         for (String i : subLinks(startLink)) {
-            /*if (i.equals(startLink) || i.equals(startingLink)) {
-                return false;
-            }
-
-             */
 
             if (depth == maxDepth) {
-                //System.out.println("brrrr");
                 return false;
             } else if (findLink(i, endLink, depth + 1)) {
                 System.out.println(startLink+"found it********************************************************************");
                 path.add(startLink);
                 return true;
             } else {
-                //System.out.println("did not found it ********************************************************************");
             }
 
         }
@@ -203,7 +195,7 @@ public class WikiGame {
         visitedLinks.add("https://en.wikipedia.org/wiki/Special:Search");
         visitedLinks.add("https://en.wikipedia.org/wiki/Special:MyContributions");
         visitedLinks.add("https://en.wikipedia.org/wiki/Special:MyTalk");
-        //System.out.println(visitedLinks);
+
     }
 
     private class ButtonClickListener implements ActionListener {
